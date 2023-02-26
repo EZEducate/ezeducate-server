@@ -3,13 +3,13 @@ const createHttpError = require('http-errors')
 const AuthController = {
   login: function (req, res, next) {
     try {
+      return res.send('Login')
     } catch (error) {
       next(createHttpError(500, error.message))
     }
   },
   register: function (req, res, next) {
     try {
-        
     } catch (error) {
       next(createHttpError(500, error.message))
     }
