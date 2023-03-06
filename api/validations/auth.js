@@ -1,49 +1,35 @@
 const Joi = require('joi')
-const { passwordRegex } = require('../utils/constants')
 
 const register = Joi.object({
-  email: Joi.string().email().required().messages({
-    'string.email': `Valid email required`,
-    'string.empty': `Email should not be empty!`,
-    'any.required': `Email is required`,
+  username: Joi.string().required().messages({
+    'string.base': 'Username should be string',
+    'string.empty': 'Username should not be empty!',
+    'any.required': 'Username is required',
   }),
-  password: Joi.string()
-    .min(8)
-    .max(32)
-    .pattern(new RegExp(passwordRegex))
-    .required()
-    .messages({
-      'string.min': `Password must be at least 8 characters`,
-      'string.max': `Password must be at max 32 characters`,
-      'string.empty': `Password should not be empty!`,
-      'any.required': `Password is required!`,
-      'string.pattern.base': `Password must be have at least one letter and one number `,
-    }),
-
-  confirmPassword: Joi.string().required().valid(Joi.ref('password')).messages({
-    'string.empty': `Confirm password should not be empty!`,
-    'any.only': `Password and confirm password do not match`,
+  email: Joi.string().email().required().messages({
+    'string.email': 'Valid email required',
+    'string.empty': 'Email should not be empty!',
+    'any.required': 'Email is required',
+  }),
+  name: Joi.string().required().messages({
+    'string.base': 'Name should be string',
+    'string.empty': 'Name should not be empty!',
+    'any.required': 'Name is required',
   }),
 })
 
 const login = Joi.object({
-  email: Joi.string().email().required().messages({
-    'string.email': `Valid email required`,
-    'string.empty': `Email should not be empty!`,
-    'any.required': `Email is required`,
+  username: Joi.string().required().messages({
+    'string.username': 'Valid username required',
+    'string.empty': 'Username should not be empty!',
+    'any.required': 'Username is required',
   }),
-  password: Joi.string()
-    .min(8)
-    .max(32)
-    .pattern(new RegExp(passwordRegex))
-    .required()
-    .messages({
-      'string.min': `Password must be at least 8 characters`,
-      'string.max': `Password must be at max 32 characters`,
-      'string.empty': `Password should not be empty!`,
-      'any.required': `Password is required!`,
-      'string.pattern.base': `Password must be have at least one letter and one number `,
-    }),
+  password: Joi.string().min(6).max(8).required().messages({
+    'string.min': 'Password must be at least 6 characters',
+    'string.max': 'Password must be at max 8 characters',
+    'string.empty': 'Password should not be empty!',
+    'any.required': 'Password is required!',
+  }),
 })
 
 module.exports = {
