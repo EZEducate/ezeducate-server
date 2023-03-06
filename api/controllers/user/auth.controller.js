@@ -53,10 +53,15 @@ const AuthController = {
     try {
       await register.validateAsync(req.body)
       const existed_user = await UserModel.findOne({
-        username,
-        email,
+        $or: [{ username }, { email }],
       })
-      if (existed_user) return next(createHttpError(400, 'User already exists'))
+      console.log(existed_user)
+      if (existed_user) {
+        if (existed_user.username === username) {
+          return next(createHttpError(400, 'Username already exists'))
+        }
+        return next(createHttpError(400, 'Email already exists'))
+      }
       let user_model = new UserModel(req.body)
       const password = generateRandomPassword()
       await user_model.setPassword(password)
