@@ -4,7 +4,6 @@ const bcrypt = require('bcrypt')
 const UserSchema = new mongoose.Schema(
   {
     username: {
-      require: true,
       type: String,
     },
     avatar: {
@@ -26,7 +25,6 @@ const UserSchema = new mongoose.Schema(
     },
     last_seen: {
       type: Date,
-      default: new Date(),
     },
     verified: {
       type: Boolean,
@@ -35,10 +33,10 @@ const UserSchema = new mongoose.Schema(
     authority: {
       type: String,
     },
-
     status: {
-      type: Boolean,
-      default: false,
+      type: String,
+      enum: ['active', 'banned', 'deleted'],
+      default: 'active',
     },
     //   grades: {},
     //   calendar: {},
