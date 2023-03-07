@@ -1,26 +1,21 @@
 const nodemailer = require('nodemailer')
-
-const sendConfirmationEmail = (user, password) => {
-  const transporter = nodemailer.createTransport({
-    host: 'smtp.dreamhost.com',
-    // type: 'SMTP',
-    port: 465,
-    auth: {
-      user: 'billing@ezeducate.co', // generated ethereal user
-      pass: 'QwertyaWd34!', // generated ethereal password
-    },
-  })
+const transporter = nodemailer.createTransport({
+  host: 'smtp.dreamhost.com',
+  // type: 'SMTP',
+  port: 465,
+  auth: {
+    user: 'billing@ezeducate.co', // generated ethereal user
+    pass: 'QwertyaWd34!', // generated ethereal password
+  },
+})
+const sendEmail = (options) => {
   transporter.sendMail(
     {
       from: 'billing@ezeducate.co', // sender address
-      to: user.email, // list of receivers
-      subject: 'Welcome to EZ Education Platform', // Subject line
-      text: `Hi ${user.name}! Welcome to EZ Education Platform`, // plain text body
-      html: `<b>Welcome to EZ Education Platform</b> <br>
-      <p>Your account : ${user.username} </p>
-      <p>Here is your password: <b>${password}<b> </p>
-      <br>
-       Don't tell other the password`, // html body
+      to: options.to, // list of receivers
+      subject: options.subject, // Subject line
+      text: options.text, // plain text body
+      html: options.content, // html body
     },
     (error, info) => {
       if (error) {
@@ -31,6 +26,4 @@ const sendConfirmationEmail = (user, password) => {
   )
 }
 
-module.exports = {
-  sendConfirmationEmail,
-}
+module.exports = sendEmail
