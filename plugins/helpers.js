@@ -17,7 +17,42 @@ const generateAuthToken = (email, name, user_id) => {
   })
 }
 
+function getNameFromEmail(email) {
+  return email.split('@')[0]
+}
+function generateRefreshToken(user) {
+  return jwt.sign(
+    {
+      id: user._id,
+      name: user.name,
+      status: user.status,
+      verified: user.verified,
+    },
+    process.env.USER_REFRESH_TOKEN_KEY,
+    {
+      expiresIn: '365d',
+    }
+  )
+}
+function generateAccessToken(user) {
+  return jwt.sign(
+    {
+      id: user._id,
+      status: user.status,
+      name: user.name,
+      verified: user.verified,
+    },
+    process.env.USER_ACCESS_TOKEN_KEY,
+    {
+      expiresIn: '1',
+    }
+  )
+}
+
 module.exports = {
   generateRandomPassword,
   generateAuthToken,
+  getNameFromEmail,
+  generateAccessToken,
+  generateRefreshToken,
 }
