@@ -2,8 +2,12 @@ const createHttpError = require('http-errors')
 const { register, login } = require('../../validations/auth')
 const sendEmail = require('../../../plugins/nodemailer')
 const UserModel = require('../../modules/User')
-const { generateRandomPassword } = require('../../../plugins/helpers')
-const jwt = require('jsonwebtoken')
+const bcrypt = require('bcrypt')
+const {
+  generateRandomPassword,
+  generateAccessToken,
+  generateRefreshToken,
+} = require('../../../plugins/helpers')
 const AuthController = {
   login: async function (req, res, next) {
     const { email, password } = req.body
@@ -28,8 +32,8 @@ const AuthController = {
             },
           }
         )
-      const access_token = AuthController.generateAccessToken(existed_user)
-      const refresh_token = AuthController.generateRefreshToken(existed_user)
+      const access_token = generateAccessToken(existed_user)
+      const refresh_token = generateRefreshToken(existed_user)
 
       const token = {
         access_token,
@@ -53,7 +57,7 @@ const AuthController = {
         if (err) return next(createHttpError(500, err.message))
         if (user) return next(createHttpError(400, 'Email already exists'))
       })
-      const name = AuthController.getNameFromEmail(email)
+      const name = getNameFromEmail(email)
       let user_model = new UserModel({
         email,
         name,
@@ -81,36 +85,37 @@ const AuthController = {
       next(createHttpError(500, error.message))
     }
   },
-  getNameFromEmail: function (email) {
-    return email.split('@')[0]
-  },
-  generateRefreshToken: function (user) {
-    return jwt.sign(
-      {
-        id: user._id,
-        name: user.name,
-        status: user.status,
-        verified: user.verified,
-      },
-      process.env.USER_REFRESH_TOKEN_KEY,
-      {
-        expiresIn: '365d',
+  forgotPassword: async function (req, res, next) {
+    const { email } = req.body
+    try {
+      const password = generateRandomPassword()
+      const hash = await bcrypt.hash(password, 16)
+      await register.validateAsync(req.body)
+      const user = await UserModel.findOneAndUpdate(
+        {
+          email,
+        },
+        {
+          $set: {
+            hash,
+          },
+        }
+      )
+      if (!user) return next(createHttpError(400, 'User not found'))
+
+      const options = {
+        to: email,
+        subject: 'Reset password',
+        text: `Hi ${user.name}! Here is your new password`,
+        content: `<b>New password:</b> ${password}`,
       }
-    )
-  },
-  generateAccessToken: function (user) {
-    return jwt.sign(
-      {
-        id: user._id,
-        status: user.status,
-        name: user.name,
-        verified: user.verified,
-      },
-      process.env.USER_ACCESS_TOKEN_KEY,
-      {
-        expiresIn: '1',
-      }
-    )
+      sendEmail(options)
+      return res.status(200).json({
+        success: true,
+      })
+    } catch (error) {
+      next(createHttpError(500, error.message))
+    }
   },
 }
 
